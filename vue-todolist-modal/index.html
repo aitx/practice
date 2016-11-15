@@ -21,7 +21,7 @@
 <form role="form">
   <div class="form-group">
     <label>用户名</label>
-    <input type="text" class="form-control" placeholder="请输入姓名" v-model="name">
+    <input type="text" class="form-control" placeholder="请输入姓名" v-model="name" id="addName">
   </div>
   <div class="form-group">
     <label>年龄</label>
@@ -34,11 +34,13 @@
 <table class="table table-hover">
   <caption class="text-center h3">记录表</caption>
   <tr>
+    <th class="text-center">序号</th>
   	<th class="text-center">姓名</th>
   	<th class="text-center">年龄</th>
   	<th class="text-center">操作</th>
   </tr>
   <tr class="text-center" v-for="(list,index) in lists">
+    <td>{{ index }}</td>
   	<td>{{ list.name }}</td>
   	<td>{{ list.age }}</td>
   	<td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#del" v-on:click="nowIndex=index">删除</button></td>
@@ -56,7 +58,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title" id="myModalLabel">确认删除吗</h4>
+        <h4 class="modal-title" id="myModalLabel">确认删除<span v-if="lists.length>nowIndex">{{lists[nowIndex].name}}</span>吗</h4>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
@@ -70,18 +72,18 @@
 </div>
 
 <script>
+var oLists=(JSON.parse(window.localStorage.getItem('lists'))) || [
+{name:'小张',age:'18'},
+{name:'小李',age:'24'},
+{name:'小飞',age:'22'},
+] ;
 new Vue({
 	el:'#app',
 	data:{
 		age:'',
 		name:'',
-		nowIndex:-100,
-		lists:[
-           {name:'小李',age:'14'},
-           {name:'小华',age:'15'},
-           {name:'小刚',age:'16'},
-           {name:'小永',age:'17'}
-		]
+		nowIndex:1,
+		lists:oLists
 	},
 	methods:{
 		add:function(){
@@ -91,13 +93,21 @@ new Vue({
 			});
 			this.age='';
 			this.name='';
+			localStorage.setItem('lists',JSON.stringify(this.lists));
+			$('#addName').focus();
 		},
 		dele:function(n){
-            this.lists.splice(n,1)
+            this.lists.splice(n,1);
+            localStorage.setItem('lists',JSON.stringify(this.lists));
 		}
 	}
 
 })
+/*
+关键点：
+1.点击列表删除按钮时，通过改变一个data变量，把要删除的index传递给del方法
+2.模态框模板根据index找到lists内的数据，并且删除每行时判断是否存在index索引的数据来控制lists内变量的显示
+*/
 </script>
 </body>
 </html>
